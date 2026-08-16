@@ -1,0 +1,1025 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Simplified multi-currency e-wallet backend — core ledger for a fintech app.",
+        "title": "E-Wallet System API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/owners": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "owners"
+                ],
+                "summary": "List all registered owners",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OKResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/wallet.Owner"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "owners"
+                ],
+                "summary": "Register a new owner",
+                "parameters": [
+                    {
+                        "description": "Owner payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.createOwnerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.CreatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/wallet.Owner"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.BadRequestResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "details": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.FieldError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "List all wallets for an owner",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Owner ID",
+                        "name": "owner_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OKResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/wallet.Wallet"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.BadRequestResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "details": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.FieldError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Create a wallet for an owner",
+                "parameters": [
+                    {
+                        "description": "Wallet payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.createWalletRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.CreatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/wallet.Wallet"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.BadRequestResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "details": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.FieldError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/transfer": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Transfer money between wallets",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unique idempotency key (UUID)",
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Transfer payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.transferRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OKResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.BadRequestResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "details": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.FieldError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Get wallet details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Wallet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OKResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/wallet.Wallet"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/{id}/ledger": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Get the full ledger history for a wallet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Wallet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OKResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/wallet.LedgerEntry"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/{id}/pay": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Deduct money from a wallet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unique idempotency key (UUID)",
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Wallet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Pay payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.amountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OKResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/wallet.Wallet"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.BadRequestResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "details": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.FieldError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/{id}/suspend": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Suspend a wallet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Wallet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OKResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/{id}/topup": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Add money to a wallet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unique idempotency key (UUID)",
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Wallet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Topup payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.amountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OKResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/wallet.Wallet"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.BadRequestResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "details": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.FieldError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.amountRequest": {
+            "type": "object",
+            "required": [
+                "amount"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "string",
+                    "example": "100.25"
+                }
+            }
+        },
+        "handler.createOwnerRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "example": "John Doe"
+                }
+            }
+        },
+        "handler.createWalletRequest": {
+            "type": "object",
+            "required": [
+                "currency",
+                "owner_id"
+            ],
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "enum": [
+                        "usd",
+                        "eur",
+                        "idr"
+                    ],
+                    "example": "usd"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+                }
+            }
+        },
+        "handler.transferRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "from_wallet_id",
+                "to_wallet_id"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "from_wallet_id": {
+                    "type": "string"
+                },
+                "to_wallet_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.BadRequestResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "BAD_REQUEST"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.FieldError"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invalid payload or parameters"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Meta"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "response.ConflictResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "CONFLICT"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Resource already exists"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Meta"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 409
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "response.CreatedResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "CREATED"
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Resource successfully created"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Meta"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 201
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "response.FieldError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "example": "name"
+                },
+                "issue": {
+                    "type": "string",
+                    "example": "name is required."
+                }
+            }
+        },
+        "response.InternalServerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INTERNAL_SERVER_ERROR"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Internal server error"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Meta"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "response.Meta": {
+            "type": "object",
+            "properties": {
+                "timestamp": {
+                    "type": "string",
+                    "example": "2026-08-16T09:28:00Z"
+                }
+            }
+        },
+        "response.NotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "NOT_FOUND"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Resource not found"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Meta"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 404
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "response.OKResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "SUCCESS"
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Meta"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "wallet.Currency": {
+            "type": "string",
+            "enum": [
+                "usd",
+                "idr",
+                "eur"
+            ],
+            "x-enum-varnames": [
+                "USD",
+                "IDR",
+                "EUR"
+            ]
+        },
+        "wallet.LedgerEntry": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Signed decimal string in the entry's currency, e.g. \"100.50\" (credit) or \"-25.00\" (debit). Rendered via LedgerEntry.MarshalJSON, not a plain int64 field.",
+                    "type": "string",
+                    "example": "100.50"
+                },
+                "created_time": {
+                    "type": "string"
+                },
+                "currency": {
+                    "$ref": "#/definitions/wallet.Currency"
+                },
+                "operation": {
+                    "$ref": "#/definitions/wallet.LedgerOperation"
+                },
+                "related_wallet": {
+                    "description": "for transfers: the other wallet involved. Empty for topup/payment.",
+                    "type": "string"
+                },
+                "wallet_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.LedgerOperation": {
+            "type": "string",
+            "enum": [
+                "topup",
+                "payment",
+                "transfer_out",
+                "transfer_in"
+            ],
+            "x-enum-varnames": [
+                "OpTopup",
+                "OpPayment",
+                "OpTransferOut",
+                "OpTransferIn"
+            ]
+        },
+        "wallet.Owner": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2026-08-16T09:14:00Z"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "example": "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+                }
+            }
+        },
+        "wallet.Wallet": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "Decimal string in the wallet's currency, e.g. \"1000.50\" (\"1000\" for IDR, which has no decimal places). Rendered via Wallet.MarshalJSON, not a plain int64 field.",
+                    "type": "string",
+                    "example": "100.12"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2026-08-16T09:14:00Z"
+                },
+                "currency": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/wallet.Currency"
+                        }
+                    ],
+                    "example": "usd"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "example": "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/wallet.WalletStatus"
+                        }
+                    ],
+                    "example": "active"
+                },
+                "wallet_id": {
+                    "type": "string",
+                    "example": "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+                }
+            }
+        },
+        "wallet.WalletStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "suspended"
+            ],
+            "x-enum-varnames": [
+                "ACTIVE",
+                "SUSPENDED"
+            ]
+        }
+    }
+}

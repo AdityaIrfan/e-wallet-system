@@ -1,0 +1,654 @@
+basePath: /
+definitions:
+  handler.amountRequest:
+    properties:
+      amount:
+        example: "100.25"
+        type: string
+    required:
+    - amount
+    type: object
+  handler.createOwnerRequest:
+    properties:
+      name:
+        example: John Doe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
+  handler.createWalletRequest:
+    properties:
+      currency:
+        enum:
+        - usd
+        - eur
+        - idr
+        example: usd
+        type: string
+      owner_id:
+        example: a1b2c3d4-e5f6-7890-abcd-1234567890ab
+        format: uuid
+        type: string
+    required:
+    - currency
+    - owner_id
+    type: object
+  handler.transferRequest:
+    properties:
+      amount:
+        type: string
+      from_wallet_id:
+        type: string
+      to_wallet_id:
+        type: string
+    required:
+    - amount
+    - from_wallet_id
+    - to_wallet_id
+    type: object
+  response.BadRequestResponse:
+    properties:
+      code:
+        example: BAD_REQUEST
+        type: string
+      details:
+        items:
+          $ref: '#/definitions/response.FieldError'
+        type: array
+      message:
+        example: Invalid payload or parameters
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      status:
+        example: 400
+        type: integer
+      success:
+        example: false
+        type: boolean
+    type: object
+  response.ConflictResponse:
+    properties:
+      code:
+        example: CONFLICT
+        type: string
+      message:
+        example: Resource already exists
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      status:
+        example: 409
+        type: integer
+      success:
+        example: false
+        type: boolean
+    type: object
+  response.CreatedResponse:
+    properties:
+      code:
+        example: CREATED
+        type: string
+      data: {}
+      message:
+        example: Resource successfully created
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      status:
+        example: 201
+        type: integer
+      success:
+        example: true
+        type: boolean
+    type: object
+  response.FieldError:
+    properties:
+      field:
+        example: name
+        type: string
+      issue:
+        example: name is required.
+        type: string
+    type: object
+  response.InternalServerErrorResponse:
+    properties:
+      code:
+        example: INTERNAL_SERVER_ERROR
+        type: string
+      message:
+        example: Internal server error
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      status:
+        example: 500
+        type: integer
+      success:
+        example: false
+        type: boolean
+    type: object
+  response.Meta:
+    properties:
+      timestamp:
+        example: "2026-08-16T09:28:00Z"
+        type: string
+    type: object
+  response.NotFoundResponse:
+    properties:
+      code:
+        example: NOT_FOUND
+        type: string
+      message:
+        example: Resource not found
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      status:
+        example: 404
+        type: integer
+      success:
+        example: false
+        type: boolean
+    type: object
+  response.OKResponse:
+    properties:
+      code:
+        example: SUCCESS
+        type: string
+      data: {}
+      message:
+        example: Operation completed successfully
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      status:
+        example: 200
+        type: integer
+      success:
+        example: true
+        type: boolean
+    type: object
+  wallet.Currency:
+    enum:
+    - usd
+    - idr
+    - eur
+    type: string
+    x-enum-varnames:
+    - USD
+    - IDR
+    - EUR
+  wallet.LedgerEntry:
+    properties:
+      amount:
+        description: Signed decimal string in the entry's currency, e.g. "100.50"
+          (credit) or "-25.00" (debit). Rendered via LedgerEntry.MarshalJSON, not
+          a plain int64 field.
+        example: "100.50"
+        type: string
+      created_time:
+        type: string
+      currency:
+        $ref: '#/definitions/wallet.Currency'
+      operation:
+        $ref: '#/definitions/wallet.LedgerOperation'
+      related_wallet:
+        description: 'for transfers: the other wallet involved. Empty for topup/payment.'
+        type: string
+      wallet_id:
+        type: string
+    type: object
+  wallet.LedgerOperation:
+    enum:
+    - topup
+    - payment
+    - transfer_out
+    - transfer_in
+    type: string
+    x-enum-varnames:
+    - OpTopup
+    - OpPayment
+    - OpTransferOut
+    - OpTransferIn
+  wallet.Owner:
+    properties:
+      created_at:
+        example: "2026-08-16T09:14:00Z"
+        type: string
+      name:
+        example: John Doe
+        type: string
+      owner_id:
+        example: a1b2c3d4-e5f6-7890-abcd-1234567890ab
+        type: string
+    type: object
+  wallet.Wallet:
+    properties:
+      balance:
+        description: Decimal string in the wallet's currency, e.g. "1000.50" ("1000"
+          for IDR, which has no decimal places). Rendered via Wallet.MarshalJSON,
+          not a plain int64 field.
+        example: "100.12"
+        type: string
+      created_at:
+        example: "2026-08-16T09:14:00Z"
+        type: string
+      currency:
+        allOf:
+        - $ref: '#/definitions/wallet.Currency'
+        example: usd
+      owner_id:
+        example: a1b2c3d4-e5f6-7890-abcd-1234567890ab
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/wallet.WalletStatus'
+        example: active
+      wallet_id:
+        example: a1b2c3d4-e5f6-7890-abcd-1234567890ab
+        type: string
+    type: object
+  wallet.WalletStatus:
+    enum:
+    - active
+    - suspended
+    type: string
+    x-enum-varnames:
+    - ACTIVE
+    - SUSPENDED
+host: localhost:8080
+info:
+  contact: {}
+  description: Simplified multi-currency e-wallet backend — core ledger for a fintech
+    app.
+  title: E-Wallet System API
+  version: "1.0"
+paths:
+  /owners:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OKResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/wallet.Owner'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerErrorResponse'
+      summary: List all registered owners
+      tags:
+      - owners
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Owner payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.createOwnerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.CreatedResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/wallet.Owner'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.BadRequestResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/response.FieldError'
+                  type: array
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ConflictResponse'
+      summary: Register a new owner
+      tags:
+      - owners
+  /wallets:
+    get:
+      parameters:
+      - description: Owner ID
+        in: query
+        name: owner_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OKResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/wallet.Wallet'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.BadRequestResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/response.FieldError'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+      summary: List all wallets for an owner
+      tags:
+      - wallets
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Wallet payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.createWalletRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.CreatedResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/wallet.Wallet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.BadRequestResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/response.FieldError'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ConflictResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerErrorResponse'
+      summary: Create a wallet for an owner
+      tags:
+      - wallets
+  /wallets/{id}:
+    get:
+      parameters:
+      - description: Wallet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OKResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/wallet.Wallet'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+      summary: Get wallet details
+      tags:
+      - wallets
+  /wallets/{id}/ledger:
+    get:
+      parameters:
+      - description: Wallet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OKResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/wallet.LedgerEntry'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+      summary: Get the full ledger history for a wallet
+      tags:
+      - wallets
+  /wallets/{id}/pay:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Unique idempotency key (UUID)
+        in: header
+        name: Idempotency-Key
+        required: true
+        type: string
+      - description: Wallet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pay payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.amountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OKResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/wallet.Wallet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.BadRequestResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/response.FieldError'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ConflictResponse'
+      summary: Deduct money from a wallet
+      tags:
+      - wallets
+  /wallets/{id}/suspend:
+    post:
+      parameters:
+      - description: Wallet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OKResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+      summary: Suspend a wallet
+      tags:
+      - wallets
+  /wallets/{id}/topup:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Unique idempotency key (UUID)
+        in: header
+        name: Idempotency-Key
+        required: true
+        type: string
+      - description: Wallet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Topup payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.amountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OKResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/wallet.Wallet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.BadRequestResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/response.FieldError'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ConflictResponse'
+      summary: Add money to a wallet
+      tags:
+      - wallets
+  /wallets/transfer:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Unique idempotency key (UUID)
+        in: header
+        name: Idempotency-Key
+        required: true
+        type: string
+      - description: Transfer payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.transferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.BadRequestResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/response.FieldError'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ConflictResponse'
+      summary: Transfer money between wallets
+      tags:
+      - wallets
+swagger: "2.0"
